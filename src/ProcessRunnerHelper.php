@@ -38,12 +38,29 @@ abstract class ProcessRunnerHelper implements ProcessWithPidInterface
     {
         $this->onStartingProcess();
         // setsid avoids INT and other signals trickling down
-        $process = Process::start(array_merge(['setsid', $this->getBinary()], $this->getArguments()));
+        $process = Process::start(
+            array_merge(['setsid', $this->getBinary()], $this->getArguments()),
+            $this->getWorkingDirectory(),
+            $this->getEnv()
+        );
         $this->process = $process;
         $this->pid = $process->getPid();
         // TODO: here we might want to restart the process, if terminated
         // Missing: information related to exit code
         $this->onProcessStarted($process);
+    }
+
+    public function getWorkingDirectory(): string
+    {
+        return $this->baseDir;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getEnv(): array
+    {
+        return getenv();
     }
 
     public function stop(): void
@@ -91,10 +108,14 @@ abstract class ProcessRunnerHelper implements ProcessWithPidInterface
         return $this->binary;
     }
 
+    /**
+     * @return string[]
+     */
     protected function getArguments(): array
     {
         return [];
     }
+
     protected function onStartingProcess(): void
     {
     }
