@@ -14,19 +14,16 @@ abstract class ProcessRunnerHelper implements ProcessWithPidInterface
 {
     protected string $applicationName = 'Application';
     protected ?Process $process = null;
-    protected string $baseDir;
-    protected string $binary;
-    protected LoggerInterface $logger;
     protected ?int $pid;
 
-    public function __construct(string $binary, string $baseDir, LoggerInterface $logger)
-    {
+    public function __construct(
+        public readonly string $binary,
+        public readonly string $baseDir,
+        protected readonly LoggerInterface $logger
+    ) {
         if (! is_executable($binary)) {
             throw new RuntimeException("Cannot execute $binary");
         }
-        $this->binary = $binary;
-        $this->baseDir = $baseDir;
-        $this->logger = $logger;
         $this->initialize();
     }
 
